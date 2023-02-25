@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 const User = require('./models/User');
+const WebSocket = require('ws');
 
 const app = express();
 const PORT = 3001;
@@ -83,6 +84,27 @@ app.post('/register', async (req, res) => {
   );
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log('Listenning on Port ', PORT);
+});
+
+const wsServer = new WebSocket.WebSocketServer({ server });
+wsServer.on('connection', (connection, req) => {
+  const cookies = req.headers.cookie;
+  if (cookies) {
+    const tokenCookieString = cookies
+      .split(';')
+      .find((str) => str.startsWith('chat_mern_token='));
+    if (tokenCookieString) {
+      const token = tokenCookieString.split('=')[1];
+      if (token) {
+        jwt.verify(token, jwtSecret, {}, (error, userData) => {
+          if (error) throw error;
+          const { userId, username } = userData;
+          connection.userId = userId;
+          connection.username = username;
+        });
+      }
+    }
+  }
 });
