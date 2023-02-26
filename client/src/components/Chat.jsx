@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Avatar } from './';
 
 const Chat = () => {
-  const [ws, setWs] = useState(null);
   const [onlinePeople, setOnlinePeople] = useState(null);
 
   const showOnline = useCallback((peopleArray) => {
@@ -23,13 +23,12 @@ const Chat = () => {
   );
 
   useEffect(() => {
-    const newWs = new WebSocket('ws://localhost:3001');
-    setWs(newWs);
-    newWs.addEventListener('message', handleMessage);
+    const ws = new WebSocket('ws://localhost:3001');
+    ws.addEventListener('message', handleMessage);
 
     return () => {
-      newWs.close();
-      newWs.removeEventListener('message', handleMessage);
+      ws.close();
+      ws.removeEventListener('message', handleMessage);
     };
   }, [handleMessage]);
 
@@ -50,8 +49,12 @@ const Chat = () => {
         </div>
         {onlinePeople &&
           Object.keys(onlinePeople).map((userId) => (
-            <div className="border-b border-gray-100 py-2" key={userId}>
-              {onlinePeople[userId]}
+            <div
+              className="border-b border-gray-100 py-2 flex items-center gap-2 cursor-pointer"
+              key={userId}
+            >
+              <Avatar userId={userId} username={onlinePeople[userId]} />
+              <span className="text-gray-800">{onlinePeople[userId]}</span>
             </div>
           ))}
       </div>
