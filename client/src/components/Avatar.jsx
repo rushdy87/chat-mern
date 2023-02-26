@@ -1,4 +1,4 @@
-const Avater = ({ userId, username }) => {
+const Avatar = ({ userId, username }) => {
   const colors = [
     'bg-red-200',
     'bg-green-200',
@@ -19,4 +19,4 @@ const Avater = ({ userId, username }) => {
   );
 };
 
-export default Avater;
+export default Avatar;
