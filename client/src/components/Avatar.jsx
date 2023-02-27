@@ -1,4 +1,5 @@
-const Avatar = ({ userId, username }) => {
+const Avatar = ({ username }) => {
+  if (!username) return;
   const colors = [
     'bg-red-200',
     'bg-green-200',
@@ -8,8 +9,7 @@ const Avatar = ({ userId, username }) => {
     'bg-teal-200',
   ];
 
-  const userIdBase16 = parseInt(userId, 16);
-  const color = colors[userIdBase16 % colors.length];
+  const color = colors[Math.floor(Math.random() * 6)];
   return (
     <div
       className={`w-8 h-8 ${color} rounded-full flex items-center justify-center opacity-70`}
