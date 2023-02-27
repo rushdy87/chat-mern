@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useContext } from 'react';
+import { useState, useEffect, useCallback, useContext, useRef } from 'react';
 import _ from 'lodash';
 import { UserContext } from '../context/userContext';
 import { Logo, Avatar } from './';
@@ -11,6 +11,8 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
 
   const { userId: id } = useContext(UserContext);
+
+  const ref = useRef();
 
   const showOnline = useCallback((peopleArray) => {
     const people = {};
@@ -68,7 +70,7 @@ const Chat = () => {
       );
     });
 
-  const handleSubmit = (event) => {
+  const hedleSendSubmit = (event) => {
     event.preventDefault();
     if (event.target[0].value) {
       const newMess = {
@@ -81,6 +83,7 @@ const Chat = () => {
       setNewMessage('');
       setMessages((prev) => [...prev, newMess]);
     }
+    ref.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
   };
 
   return (
@@ -119,12 +122,13 @@ const Chat = () => {
                     </div>
                   </div>
                 ))}
+                <div ref={ref}></div>
               </div>
             </div>
           )}
         </div>
         {selectedUserId && (
-          <form className="flex gap-2" onSubmit={handleSubmit}>
+          <form className="flex gap-2" onSubmit={hedleSendSubmit}>
             <input
               type="text"
               className="bg-white border p-2 flex-grow rounded-sm"
