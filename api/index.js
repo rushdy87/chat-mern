@@ -25,6 +25,21 @@ app.use(cookieParser());
 
 mongoose.connect(process.env.MDB_URL);
 
+const getUserDataFromRequist = async (req) => {
+  return new Promise((resolve, reject) => {
+    const token = req.cookies?.chat_mern_token;
+
+    if (token) {
+      jwt.verify(token, jwtSecret, {}, (error, userData) => {
+        if (error) throw error;
+        resolve(userData);
+      });
+    } else {
+      reject('no token');
+    }
+  });
+};
+
 app.get('/profile', (req, res) => {
   const token = req.cookies?.chat_mern_token;
 
@@ -83,6 +98,18 @@ app.post('/register', async (req, res) => {
         });
     }
   );
+});
+
+app.get('/messages/:userId', async (req, res) => {
+  const { userId } = req.params;
+  const { userId: ourUserId } = await getUserDataFromRequist(req);
+  const messages = await Message.find({
+    sender: { $in: [userId, ourUserId] },
+    recipient: { $in: [userId, ourUserId] },
+  })
+    .sort({ createdAt: -1 })
+    .exec();
+  res.json(messages);
 });
 
 const server = app.listen(PORT, () => {

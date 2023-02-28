@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useContext, useRef } from 'react';
 import _ from 'lodash';
 import { UserContext } from '../context/userContext';
 import { Logo, Avatar } from './';
+import axios from 'axios';
 
 const Chat = () => {
   const [ws, setWs] = useState(null);
@@ -44,6 +45,12 @@ const Chat = () => {
 
     newWs.addEventListener('message', handleMessage);
   }, [handleMessage]);
+
+  useEffect(() => {
+    if (selectedUserId) {
+      axios.get(`/messages/${selectedUserId}`);
+    }
+  }, [selectedUserId]);
 
   const renderOnlineUsers =
     onlinePeople &&
