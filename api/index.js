@@ -100,6 +100,15 @@ app.post('/register', async (req, res) => {
   );
 });
 
+app.post('/logout', (req, res) => {
+  res
+    .cookie('chat_mern_token', '', {
+      sameSite: 'none',
+      secure: true,
+    })
+    .json('ok');
+});
+
 app.get('/users', async (req, res) => {
   const users = await User.find({}, { _id: 1, username: 1 });
   res.json(users);
@@ -141,6 +150,7 @@ wsServer.on('connection', (connection, req) => {
     connection.ping();
     connection.deathTimer = setTimeout(() => {
       connection.isAlive = false;
+      clearInterval();
       connection.terminate();
       notifyAboutOnlinePeople();
       console.log('dead');

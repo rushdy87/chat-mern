@@ -12,7 +12,12 @@ const Chat = () => {
   const [newMessage, setNewMessage] = useState('');
   const [messages, setMessages] = useState([]);
 
-  const { userId: id } = useContext(UserContext);
+  const {
+    username,
+    userId: id,
+    setUserId,
+    setUsername,
+  } = useContext(UserContext);
 
   const ref = useRef();
 
@@ -132,16 +137,49 @@ const Chat = () => {
       );
     });
 
+  const handleLogout = () => {
+    axios.post('/logout').then(() => {
+      setWs(null);
+      setUserId(null);
+      setUsername(null);
+    });
+  };
+
   return (
     <div className="flex h-screen">
-      <div className="bg-white w-1/4 pt-4">
-        <Logo />
-        {renderOnlineUsers}
-        <div>
-          <h2 className="p-2 text-2xl border bg-blue-600 w-1/3 text-center text-yellow-100">
-            Offline:
-          </h2>
-          {renderOfflineUsers}
+      <div className="bg-white w-1/4 pt-4 flex flex-col">
+        <div className="flex-grow">
+          <Logo />
+          {renderOnlineUsers}
+          <div>
+            <h2 className="p-2 text-2xl border bg-blue-600 w-1/3 text-center text-yellow-100">
+              Offline:
+            </h2>
+            {renderOfflineUsers}
+          </div>
+        </div>
+        <div className="p-2 flex items-center justify-center">
+          <span className="mr-2 text-sm text-gray-600 flex items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                fillRule="evenodd"
+                d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z"
+                clipRule="evenodd"
+              />
+            </svg>
+            {username}
+          </span>
+          <button
+            className="text-sm bg-blue-100 py-1 px-2 text-gray-500 border rounded-sm"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
         </div>
       </div>
 
