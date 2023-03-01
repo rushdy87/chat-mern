@@ -31,7 +31,7 @@ const Chat = () => {
         showOnline(messageData.online);
       } else if ('text' in messageData) {
         setMessages((prev) => {
-          return _.uniqBy([...prev, { ...messageData }], 'id');
+          return _.uniqBy([...prev, { ...messageData }], '_id');
         });
       }
     },
@@ -58,7 +58,12 @@ const Chat = () => {
 
   useEffect(() => {
     if (selectedUserId) {
-      axios.get(`/messages/${selectedUserId}`);
+      axios
+        .get(`/messages/${selectedUserId}`)
+        .then(({ data }) => {
+          setMessages(data);
+        })
+        .catch((error) => console.log(error));
     }
   }, [selectedUserId]);
 
@@ -91,7 +96,7 @@ const Chat = () => {
     event.preventDefault();
     if (event.target[0].value) {
       const newMess = {
-        id: Date.now(),
+        _id: Date.now(),
         sender: id,
         recipient: selectedUserId,
         text: event.target[0].value,
