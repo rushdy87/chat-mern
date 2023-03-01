@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback, useContext, useRef } from 'react';
 import _ from 'lodash';
 import { UserContext } from '../context/userContext';
-import { Logo, Avatar } from './';
+import { Logo, Contect } from './';
 import axios from 'axios';
 
 const Chat = () => {
   const [ws, setWs] = useState(null);
   const [onlinePeople, setOnlinePeople] = useState(null);
+  const [offlinePeople, setOfflinePeople] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [newMessage, setNewMessage] = useState('');
   const [messages, setMessages] = useState([]);
@@ -57,6 +58,24 @@ const Chat = () => {
   };
 
   useEffect(() => {
+    axios.get('/users').then(({ data }) => {
+      let offlinePeopleArray = [];
+      if (onlinePeople) {
+        offlinePeopleArray = data
+          .filter((p) => p._id !== id)
+          .filter((p) => !Object.keys(onlinePeople).includes(p._id));
+      } else {
+        offlinePeopleArray = data;
+      }
+      const people = {};
+      offlinePeopleArray.forEach(({ _id, username }) => {
+        people[_id] = username;
+      });
+      setOfflinePeople(people);
+    });
+  }, [onlinePeople, id]);
+
+  useEffect(() => {
     if (selectedUserId) {
       axios
         .get(`/messages/${selectedUserId}`)
@@ -66,31 +85,6 @@ const Chat = () => {
         .catch((error) => console.log(error));
     }
   }, [selectedUserId]);
-
-  const renderOnlineUsers =
-    onlinePeople &&
-    Object.keys(onlinePeople).map((userId) => {
-      if (id === userId) return null;
-      return (
-        <div
-          className={`border-b border-gray-100 flex items-center ${
-            userId === selectedUserId && 'bg-blue-50'
-          }`}
-          key={userId}
-          onClick={() => {
-            setSelectedUserId(userId);
-          }}
-        >
-          {userId === selectedUserId && (
-            <div className="w-1 bg-blue-500 h-12 rounded-r-md" />
-          )}
-          <div className="flex items-center gap-2 cursor-pointer py-2 pl-4">
-            {userId && <Avatar username={onlinePeople[userId]} />}
-            <span className="text-gray-800">{onlinePeople[userId]}</span>
-          </div>
-        </div>
-      );
-    });
 
   const hedleSendSubmit = (event) => {
     event.preventDefault();
@@ -108,11 +102,47 @@ const Chat = () => {
     ref.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
   };
 
+  const renderOnlineUsers =
+    onlinePeople &&
+    Object.keys(onlinePeople).map((userId) => {
+      if (id === userId) return null;
+      return (
+        <Contect
+          userId={userId}
+          selectedUserId={selectedUserId}
+          setSelectedUserId={setSelectedUserId}
+          people={onlinePeople}
+          key={userId}
+          online={true}
+        />
+      );
+    });
+
+  const renderOfflineUsers =
+    offlinePeople &&
+    Object.keys(offlinePeople).map((userId) => {
+      return (
+        <Contect
+          userId={userId}
+          selectedUserId={selectedUserId}
+          setSelectedUserId={setSelectedUserId}
+          people={offlinePeople}
+          key={userId}
+        />
+      );
+    });
+
   return (
     <div className="flex h-screen">
       <div className="bg-white w-1/4 pt-4">
         <Logo />
         {renderOnlineUsers}
+        <div>
+          <h2 className="p-2 text-2xl border bg-blue-600 w-1/3 text-center text-yellow-100">
+            Offline:
+          </h2>
+          {renderOfflineUsers}
+        </div>
       </div>
 
       <div className="flex flex-col bg-blue-50 w-3/4 p-3">

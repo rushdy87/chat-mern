@@ -1,4 +1,4 @@
-const Avatar = ({ username }) => {
+const Avatar = ({ userId, username, online }) => {
   if (!username) return;
   const colors = [
     'bg-red-200',
@@ -9,12 +9,15 @@ const Avatar = ({ username }) => {
     'bg-teal-200',
   ];
 
-  const color = colors[Math.floor(Math.random() * 6)];
+  const color = colors[parseInt(userId, 16) % colors.length];
   return (
     <div
-      className={`w-8 h-8 ${color} rounded-full flex items-center justify-center opacity-70`}
+      className={`w-10 h-10 ${color} rounded-full relative flex items-center justify-center opacity-70`}
     >
-      {username[0]}
+      <div className="font-bold text-2xl">{username[0]}</div>
+      {online && (
+        <div className="absolute w-3 h-3 bg-green-400 bottom-0 right-0 rounded-full border border-white" />
+      )}
     </div>
   );
 };
