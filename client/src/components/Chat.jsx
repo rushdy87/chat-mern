@@ -39,12 +39,22 @@ const Chat = () => {
   );
 
   useEffect(() => {
+    connectToWebSocket();
+  }, []);
+
+  const connectToWebSocket = () => {
     const newWs = new WebSocket('ws://localhost:3001');
 
     setWs(newWs);
 
     newWs.addEventListener('message', handleMessage);
-  }, [handleMessage]);
+    newWs.addEventListener('close', () => {
+      setTimeout(() => {
+        console.log('Disconnected.. Tring to reconnect. ');
+        connectToWebSocket();
+      }, 1000);
+    });
+  };
 
   useEffect(() => {
     if (selectedUserId) {
